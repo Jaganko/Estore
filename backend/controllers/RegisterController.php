@@ -29,19 +29,15 @@ class RegisterController extends Controller
         ];
     }
 
-    /**
-     * Session check for user if session not set redirect to login page.
-     */
-
     public function beforeAction($action) {
         $this->enableCsrfValidation = false;
         $session = Yii::$app->session;
 
         if(isset($session['user_logintype'])){
-            return $this->redirect(['site/index']);
-        }
-
+        return $this->redirect(['site/index']);   
+        }else{
         return parent::beforeAction($action);
+        }    
 
     }
 
@@ -100,12 +96,16 @@ class RegisterController extends Controller
                 $model->confirm_password=$confirm_password;
 
                 if($model->save()){
-                $session = Yii::$app->session; 
-                Yii::$app->session->setFlash('success', "User registered sucessfully.");
-                return $this->redirect(['index']);    
+                $session = Yii::$app->session;
+                $session['user_logintype']="user"; 
+                $session['__id']=$model->id; 
+                Yii::$app->session->setFlash('success', "User registered sucessfully");  
+                return $this->redirect(['site/index']);
                 }
 
             }
+            $model->password_hash="";
+            $model->confirm_password="";
             Yii::$app->session->setFlash('failure', "Please check with your input");
         }
 
